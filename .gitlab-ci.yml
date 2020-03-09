@@ -1,0 +1,42 @@
+.common: &common
+  image: quay.io/redhat-aqe/tox:latest
+  tags: [docker]
+  cache:
+    paths: ['.cache/pip']
+
+.python: &python
+ image: python:latest
+ allow_failure: True
+ before_script: 
+    - pip install tox
+ tags: [docker]
+ cache:
+    paths: ['.cache/pip']
+ 
+stages:
+    - linting
+    - testing
+
+python3:
+  <<: *python
+  stage: testing
+  script:
+    - tox -e dev3
+    
+python2:
+  <<: *python
+  stage: testing
+  script:
+    - tox -e dev2
+
+flake8:
+  <<: *common
+  stage: linting
+  script:
+    - tox -e flake8
+
+black:
+  <<: *common
+  stage: linting
+  script:
+    - tox -e black
